@@ -1,4 +1,5 @@
-#Learn code
+# Learn code
+Una app para aprender a programar
 
 To run the app:
 
