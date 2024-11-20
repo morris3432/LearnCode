@@ -1,9 +1,7 @@
-# A applc Flet app
-
-An example of a minimal Flet app.
+#Learn code
 
 To run the app:
 
 ```
-flet run [app_directory]
+flet run app.py
 ```
