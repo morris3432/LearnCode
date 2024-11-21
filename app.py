@@ -1,7 +1,4 @@
-from learncode import ContactManager
 import flet as ft 
-
-user=ContactManager()
 
 def main(page: ft.Page):
     page.window.height = 800
@@ -60,7 +57,7 @@ def main(page: ft.Page):
         ,color='blue'
         ,prefix_icon=ft.icons.LOCK
         ,password=True
-        
+        ,can_reveal_password= True
     )
 
     conf=ft.Container(
@@ -72,34 +69,9 @@ def main(page: ft.Page):
 
     
     def login_registrer(e):
-        login.visible = False
-        container.visible = False
+        if e == 0:
+            print('login_registrer')
         
-        if e == 0:  # Caso de login
-            nombre = str(email.value)  # Obtener el correo del input
-            passwords = str(password.value)  # Obtener la contraseña del input
-            
-            # Obtener el usuario desde la base de datos usando el correo
-            users = user.get_contact(nombre)  # `nombre` es el correo
-            
-            if users:
-                # Verificar si la contraseña coincide con la almacenada en la base de datos
-                if users[0][3] == passwords:  # Suponiendo que la contraseña está en la columna 2
-                    print('Contraseña correcta')
-                    container.visible = True
-                    login.visible = False
-                else:
-                    print('Contraseña incorrecta')
-                    login.visible = True
-            else:
-                print('Correo no encontrado')
-                login.visible = True
-            
-            page.update()  # Actualizar la página después de los cambios en la visibilidad
-            
-        elif e == 1:  # Caso de registro
-            print('Registro')
-
     container = ft.Container(
         visible=False,
         width=350,
