@@ -272,7 +272,7 @@ def main(page: ft.Page):
     
             
     container = ft.Container(
-        visible=True,
+        visible=False,
         width=350,
         height=745,
         padding=5,
@@ -305,7 +305,7 @@ def main(page: ft.Page):
 
     login=ft.Container(
         expand=True,
-        visible=False,
+        visible=True,
         content=ft.Column(
             expand=True
             ,controls=[

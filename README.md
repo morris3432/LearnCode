@@ -6,7 +6,8 @@ esta app sigue e desarrollo no hay una versión aun
 ```
 flet run app.py
 ```
+![Texto alternativo](./images_repo/login.png)
 
 
 > [!NOTE]
-> Si quiere colaborar con este proyecto escribir a bernadoyancis@gmail.com o a @ajucha.jsx_ en instagram
+> Si quiere colaborar con este proyecto escribir a bernadoyancis@gmail.com o a @ajuchan.jsx_ en instagram
