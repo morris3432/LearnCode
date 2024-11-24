@@ -1,8 +1,11 @@
+# libs
 import flet as ft 
-from models import Conect
 from werkzeug.security import generate_password_hash, check_password_hash
-
-
+# models
+from models.Users_Models import Uesrs_Models
+from models.levls_models import levels_models
+from components.card import Cart   
+ 
 def main(page: ft.Page):
     page.window.height = 800
     page.window.width = 380
@@ -10,12 +13,89 @@ def main(page: ft.Page):
     page.theme = ft.Theme(color_scheme_seed="blue")
     
     # conectar a MongoDB
-    db=Conect()    
+    db=Uesrs_Models()
+    model=levels_models()
+    niveles=model.get_levels()
+    carts=Cart()
     
-    # funciones
     def advertisement(e):
         page.close(advert)
+        
+    def  theme (e):
+        if contenedor.bgcolor == 'black':
+            contenedor.bgcolor='white'
+            buthontheme.icon=ft.icons.DARK_MODE
+        elif contenedor.bgcolor == 'white':
+            contenedor.bgcolor='black'
+            buthontheme.icon=ft.icons.LIGHT_MODE
+        page.update()
+        
+    def login_registrer(e):
+        nom=str(email.value)
+        passwords=str(password.value)
+        passwordC=str(passwordconfirm.value)
+        user_name=str(nombre.value)
+        
+        if e == 0: # login
+            user=db.find_user(nom)
+            if not user:
+                print('User not found')
+            elif check_password_hash(user['password'],passwords):
+                container.visible = True
+                login.visible=False
+                nn=user['user_name']
+                em=user['email']
+                nombreu.value=nn
+                emailu.value=em
+                advert.content=ft.Text(f'bienvenido {nn} a Learn Code')
+                page.open(advert)
+            else:
+                print('Contraseña incorrecta')
+            page.update()
+        elif e == 1:
+            if passwords!= passwordC:
+                print('Contraseñas no coinciden')
+            elif db.find_user(user_name):
+                print('Nombre de usuario ya utilizado')
+            else:
+                db.insert_user(user_name,nom, generate_password_hash(passwords))
+                print('Usuario registrado')
+                    
+    def change_in(e):
+        inicio.visible=False
+        seting.visible=False
+        levels.visible=False
+        if e == 0:
+            inicio.visible=True
+            levels.visible=False
+            seting.visible=False
+        elif e == 1:
+            seting.visible=False
+            levels.visible=True
+            inicio.visible=False
+        elif e == 2:
+            inicio.visible=False
+            seting.visible=True
+            levels.visible=False
+        page.update()
+            
+    def chang_log(e):
+        loginform.visible=False
+        registerform.visible=True
+        
+        if e == 0:
+            loginform.visible=False
+            registerform.visible=True
+        elif e == 1:
+            loginform.visible=True
+            registerform.visible=False
+        page.update()
     
+    if not niveles:
+        page.add(ft.Text("No se encontraron niveles o hubo un error al obtenerlos.", color="red"))
+        return
+    
+
     advert = ft.AlertDialog(
             modal=True,
             title=ft.Text("Bienvenido ", size=20, weight=ft.FontWeight.W_900),
@@ -24,11 +104,7 @@ def main(page: ft.Page):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
     )
-    # componentes        
-    levels=ft.Container(visible=True,expand=True,bgcolor=ft.colors.PURPLE_900)
 
-    
-    # formulario de registro y login
     nombre=ft.TextField(
         hint_text='Nombre de usuario'
         ,border='underline'
@@ -41,7 +117,6 @@ def main(page: ft.Page):
         ,color='blue'
         ,prefix_icon=ft.icons.EMAIL
     )
-    
     password=ft.TextField(
         hint_text='Contraseña'
         ,border='underline'
@@ -50,7 +125,6 @@ def main(page: ft.Page):
         ,password=True
         ,can_reveal_password= True
     )
-    
     passwordconfirm=ft.TextField(
         hint_text='Confirmar Contraseña'
         ,border='underline'
@@ -59,7 +133,11 @@ def main(page: ft.Page):
         ,password=True
         ,can_reveal_password= True
     )
-
+    
+    nombreu=ft.Text(value='',size=20,weight=ft.FontWeight.W_900,width=300,text_align='center')
+    emailu=ft.Text(value='',size=15,weight=ft.FontWeight.W_500,width=300,text_align='center')
+    id=ft.Text(value='',size=0 ,weight=ft.FontWeight.W_900,width=300,text_align='center')
+    
     inicio=ft.Container(
         visible=True
         ,expand=True
@@ -67,13 +145,58 @@ def main(page: ft.Page):
         
     )
     
+    buthontheme=ft.TextButton(icon=ft.icons.LIGHT_MODE,text='Tema',on_click=theme)
     
+    seting=ft.Container(
+        visible=False
+        ,expand=True
+        ,padding=25
+        ,content=ft.Column(
+            expand=True
+            ,controls=[
+                ft.Container(
+                    alignment=ft.alignment.center
+                    ,content=ft.Image(src='../assets/foto.jpeg',border_radius=10,height=100,width=100)
+                ),
+                ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    controls=[
+                        nombreu,
+                        emailu
+                    ]
+                )
+                )
+                ,buthontheme
+            ]
+        )
+    )
+    
+    cards=[
+        carts.create_card(nivel)
+        for nivel in niveles
+    ]
+
+    levels=ft.Container(
+        visible=False
+        ,expand=True
+        ,content=ft.Column(
+            expand=True,
+            scroll='auto',
+            controls=[
+                ft.Row(
+                    col=12,
+                    controls=cards
+                )
+            ]
+        )
+    )
     
     loginform=ft.Container(
                     alignment=ft.alignment.center
                     ,expand=True
                     ,bgcolor=ft.colors.BLUE_GREY_900
-                    ,padding=25
+                    ,padding=ft.padding.only(20,55,20)
                     ,visible=True
                     ,content=ft.Column(#
                             alignment=ft.alignment.center,
@@ -147,62 +270,21 @@ def main(page: ft.Page):
                         )
                     )
     
-    def login_registrer(e):
-        nom=str(email.value)
-        passwords=str(password.value)
-        passwordC=str(passwordconfirm.value)
-        user_name=str(nombre.value)
-        
-        if e == 0: # login
-            user=db.find_user(nom)
-            if not user:
-                print('User not found')
-            elif check_password_hash(user['password'],passwords):
-                container.visible = True
-                login.visible=False
-                nn=user['user_name']
-                advert.content=ft.Text(f'bienvenido {nn} a Learn Code')
-                page.open(advert)
-            else:
-                print('Contraseña incorrecta')
-            page.update()
-        elif e == 1:
-            if passwords!= passwordC:
-                print('Contraseñas no coinciden')
-            elif db.find_user(user_name):
-                print('Nombre de usuario ya utilizado')
-            else:
-                db.insert_user(user_name,nom, generate_password_hash(passwords))
-                print('Usuario registrado')
-                    
-    def change_in(e):
-        inicio.visible=False
-            
-    def chang_log(e):
-        loginform.visible=False
-        registerform.visible=True
-        
-        if e == 0:
-            loginform.visible=False
-            registerform.visible=True
-        elif e == 1:
-            loginform.visible=True
-            registerform.visible=False
-        page.update()
             
     container = ft.Container(
-        visible=False,
+        visible=True,
         width=350,
         height=745,
         padding=5,
         border_radius=10,
-        bgcolor=ft.colors.BLACK,
         content=ft.Column(
             controls=[
                 ft.Stack(
                     expand=True
                     ,controls=[
                         inicio
+                        ,levels
+                        ,seting
                     ]
                 )
                 ,ft.Container(border_radius=8 ,height=50,bgcolor=ft.colors.BLUE_GREY_900
@@ -210,9 +292,9 @@ def main(page: ft.Page):
                                    alignment='center',
                                    expand=True,
                                   controls=[
-                                      ft.IconButton(ft.icons.HOME,icon_size=40)
-                                      ,ft.IconButton(ft.icons.COFFEE,icon_size=40)
-                                      ,ft.IconButton(ft.icons.SETTINGS, icon_size=40)
+                                      ft.IconButton(ft.icons.HOME,icon_size=40,on_click=lambda e:change_in(0))
+                                      ,ft.IconButton(ft.icons.COFFEE,icon_size=40, on_click=lambda e: change_in(1))
+                                      ,ft.IconButton(ft.icons.SETTINGS, icon_size=40,on_click=lambda e: change_in(2))
                                   ]
                               )
                               )
@@ -223,7 +305,7 @@ def main(page: ft.Page):
 
     login=ft.Container(
         expand=True,
-        visible=True,
+        visible=False,
         content=ft.Column(
             expand=True
             ,controls=[
@@ -247,6 +329,7 @@ def main(page: ft.Page):
     
     contenedor=ft.Container(
         expand=True
+        ,bgcolor='black'
         ,content=ft.Stack(
             expand=True
             ,controls=[
