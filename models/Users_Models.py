@@ -1,18 +1,19 @@
-from models.conexionMongo import conectar
+from plugins.conexionMongo import conectar
 
 class Uesrs_Models:
-    collection=conectar().get_collection('user')
+    def __init__(self):
+        self.collection = conectar().get_collection('Users')
+    
     # Buscar un usuario por nombre de usuario
     def find_user(self, username):
         return self.collection.find_one({"user_name": username})
-
-
+    
     # Insertar un nuevo usuario
     def insert_user(self, username, email, password):
         # Verificar si el correo ya está registrado
         if self.collection.find_one({"email": email}):
             return False
-
+        
         # Verificar si el nombre de usuario ya existe
         if self.collection.find_one({"user_name": username}):
             return False
@@ -27,13 +28,12 @@ class Uesrs_Models:
         except Exception as e:
             print(f"Error al calcular el nuevo _id: {e}")
             return False
-
-
+        
         # Insertar usuario en la base de datos
         try:
             self.collection.insert_one(
                 {
-                    "_id":new_id,
+                    "_id": new_id,
                     "user_name": username,
                     "email": email,
                     "password": password

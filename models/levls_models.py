@@ -1,7 +1,7 @@
-from models.conexionMongo import conectar
+from plugins.conexionMongo import conectar
 
 class levels_models:
-    collection = conectar().get_collection('levels')
+    collection = conectar().get_collection('Cursos')
     
     def get_levels(self):
         niveles = self.collection.find()

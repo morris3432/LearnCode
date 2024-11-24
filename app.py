@@ -39,7 +39,7 @@ def main(page: ft.Page):
         if e == 0: # login
             user=db.find_user(nom)
             if not user:
-                print('User not found')
+                error.value='Usuario no encontrado'
             elif check_password_hash(user['password'],passwords):
                 container.visible = True
                 login.visible=False
@@ -50,7 +50,9 @@ def main(page: ft.Page):
                 advert.content=ft.Text(f'bienvenido {nn} a Learn Code')
                 page.open(advert)
             else:
-                print('Contraseña incorrecta')
+                error.value='Contraseña incorrecta'
+                email.value=''
+                password.value=''
             page.update()
         elif e == 1:
             if passwords!= passwordC:
@@ -60,6 +62,10 @@ def main(page: ft.Page):
             else:
                 db.insert_user(user_name,nom, generate_password_hash(passwords))
                 print('Usuario registrado')
+                email.value=''
+                password.value=''
+                passwordconfirm.value=''
+                nombre.value=''
                     
     def change_in(e):
         inicio.visible=False
@@ -91,11 +97,6 @@ def main(page: ft.Page):
             registerform.visible=False
         page.update()
     
-    if not niveles:
-        page.add(ft.Text("No se encontraron niveles o hubo un error al obtenerlos.", color="red"))
-        return
-    
-
     advert = ft.AlertDialog(
             modal=True,
             title=ft.Text("Bienvenido ", size=20, weight=ft.FontWeight.W_900),
@@ -104,7 +105,7 @@ def main(page: ft.Page):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
     )
-
+    error=ft.Text(value='',color='red',weight=ft.FontWeight.W_300)
     nombre=ft.TextField(
         hint_text='Nombre de usuario'
         ,border='underline'
@@ -215,6 +216,7 @@ def main(page: ft.Page):
                                 )
                                 ,email
                                 ,password
+                                ,error
                                 ,ft.ElevatedButton(text='Login', on_click=lambda e: login_registrer(0),width=310)
                                 ,ft.Container(
                                     padding=20

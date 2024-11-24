@@ -1,5 +1,5 @@
 import gridfs.errors
-from conexionMongo import conectar
+from plugins.conexionMongo import conectar
 import gridfs
 from bson import ObjectId
 
